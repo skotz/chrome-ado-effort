@@ -1,3 +1,7 @@
+/*
+Scott Clayton 2022
+*/
+
 function skotzHash(input) {
     var hash = 0,
         i, chr;
@@ -70,24 +74,17 @@ function skotzTallyVotes() {
                 console.log("bad " + x.innerHTML);
             }
         });
-        var total = 0;
-        var count = 0;
         var scores = {};
         var unique = "!";
         votes.forEach(x => {
-            total += +x.vote;
-            count++;
             if (scores[x.vote] == null) {
                 scores[x.vote] = 0;
             }
             scores[x.vote]++;
             unique += "|" + x.vote + "|" + x.user + "|" + x.time;
         });
-        if (count > 0) {
-            var average = total / count;
-            //console.log("average = " + average);
-        }
         var prev = document.querySelector(".skotz-graph");
+        // Redraw, if we need to
         if (prev == null || prev.getAttribute("data-last") != unique) {
             if (prev != null) {
                 prev.setAttribute("data-last", unique);
@@ -106,7 +103,7 @@ function skotzTallyVotes() {
                 html += "<style>";
                 html += ".skotz-" + cssScore + " {width:" + width + "px;height:" + scale + "px;background:rgba(0,103,181,1);background:var(" + palette + ",rgb(0, 120, 212));display:flex;border-left:1px solid #000;}";
                 html += ".skotz-line {transition: opacity 200ms; cursor: pointer;}";
-                html += ".skotz-line:hover {opacity:1 !important}";
+                html += ".skotz-line:hover {opacity:1 !important; background: linear-gradient(90deg, rgba(244,244,244,1) 0%, rgba(244,244,244,0) 100%);}";
                 html += "</style>";
                 html += "<div id=\"skotz-line-" + cssScore + "\" class=\"skotz-line\" style=\"display:flex;margin-left:5px;" + (num == 0 ? "opacity:0.25" : "") + "\">";
                 html += "<div class=\"skotz-" + cssScore + "\"></div>";
@@ -131,18 +128,20 @@ function skotzTallyVotes() {
             while (parent != null && !parent.classList.contains("control")) {
                 parent = parent.parentElement;
             }
-            document.querySelectorAll(".skotz-graph").forEach(d => d.remove());
-            parent.appendChild(div);
-            document.getElementById("skotz-line-1").addEventListener("click", function (e) { skotzCastVote(1); skotzTallyVotes(); }, false);
-            document.getElementById("skotz-line-2").addEventListener("click", function (e) { skotzCastVote(2); skotzTallyVotes(); }, false);
-            document.getElementById("skotz-line-3").addEventListener("click", function (e) { skotzCastVote(3); skotzTallyVotes(); }, false);
-            document.getElementById("skotz-line-5").addEventListener("click", function (e) { skotzCastVote(5); skotzTallyVotes(); }, false);
-            document.getElementById("skotz-line-8").addEventListener("click", function (e) { skotzCastVote(8); skotzTallyVotes(); }, false);
-            document.getElementById("skotz-line-13").addEventListener("click", function (e) { skotzCastVote(13); skotzTallyVotes(); }, false);
-            document.getElementById("skotz-line-20").addEventListener("click", function (e) { skotzCastVote(20); skotzTallyVotes(); }, false);
-            document.getElementById("skotz-line-40").addEventListener("click", function (e) { skotzCastVote(40); skotzTallyVotes(); }, false);
-            document.getElementById("skotz-line-100").addEventListener("click", function (e) { skotzCastVote(100); skotzTallyVotes(); }, false);
-            document.getElementById("skotz-line-x").addEventListener("click", function (e) { skotzCastVote("?"); skotzTallyVotes(); }, false);
+            if (parent != null) {
+                document.querySelectorAll(".skotz-graph").forEach(d => d.remove());
+                parent.appendChild(div);
+                document.getElementById("skotz-line-1").addEventListener("click", function (e) { skotzCastVote(1); skotzTallyVotes(); }, false);
+                document.getElementById("skotz-line-2").addEventListener("click", function (e) { skotzCastVote(2); skotzTallyVotes(); }, false);
+                document.getElementById("skotz-line-3").addEventListener("click", function (e) { skotzCastVote(3); skotzTallyVotes(); }, false);
+                document.getElementById("skotz-line-5").addEventListener("click", function (e) { skotzCastVote(5); skotzTallyVotes(); }, false);
+                document.getElementById("skotz-line-8").addEventListener("click", function (e) { skotzCastVote(8); skotzTallyVotes(); }, false);
+                document.getElementById("skotz-line-13").addEventListener("click", function (e) { skotzCastVote(13); skotzTallyVotes(); }, false);
+                document.getElementById("skotz-line-20").addEventListener("click", function (e) { skotzCastVote(20); skotzTallyVotes(); }, false);
+                document.getElementById("skotz-line-40").addEventListener("click", function (e) { skotzCastVote(40); skotzTallyVotes(); }, false);
+                document.getElementById("skotz-line-100").addEventListener("click", function (e) { skotzCastVote(100); skotzTallyVotes(); }, false);
+                document.getElementById("skotz-line-x").addEventListener("click", function (e) { skotzCastVote("?"); skotzTallyVotes(); }, false);
+            }
         }
     } catch (ex) {
         console.log(ex);
