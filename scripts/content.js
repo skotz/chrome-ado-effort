@@ -1,23 +1,47 @@
+function skotzHash(input) {
+    var hash = 0,
+        i, chr;
+    if (input.length === 0) return hash;
+    for (i = 0; i < input.length; i++) {
+        chr = input.charCodeAt(i);
+        hash = ((hash << 5) - hash) + chr;
+        hash |= 0;
+    }
+    return hash;
+}
+
 function skotzCastVote(vote) {
-    var user = document.querySelector("#mectrl_currentAccount_secondary").innerHTML;
-    document.querySelector("[aria-label=Discussion]").innerHTML += "Voted<span style=\"font-size:0px\">{\"skotz\":true,\"vote\":\"" + vote + "\",\"user\":\"" + user + "\",\"time\":" + new Date().getTime() + "}</span>";
-    document.querySelector("[aria-label=Discussion]").dispatchEvent(new Event("focus"));
-    var tries = 20;
-    var timer = setInterval(function () {
-        if (document.querySelector("[aria-label=Discussion] b") == null) {
-            const selection = window.getSelection();
-            const range = document.createRange();
-            range.selectNodeContents(document.querySelector("[aria-label=Discussion]"));
-            selection.removeAllRanges();
-            selection.addRange(range);
-            document.querySelector(".discussion-control [aria-label=Bold]").dispatchEvent(new MouseEvent("click", { bubbles: true }));
-            if (tries-- <= 0) {
-                clearInterval(timer);
+    try {
+        document.querySelector("[aria-label=Discussion]").dispatchEvent(new Event("focus"));
+        document.querySelectorAll("[aria-label=Discussion] br").forEach(d => d.remove());
+        document.querySelectorAll("[aria-label=Discussion] .skotz-vote").forEach(d => d.remove());
+        // Hash email address for user id
+        var user = skotzHash(document.querySelector("#mectrl_currentAccount_secondary").innerHTML);
+        document.querySelector("[aria-label=Discussion]").innerHTML += "<span class=\"skotz-vote\">Voted</span><span style=\"font-size:0px\">{\"skotz\":true,\"vote\":\"" + vote + "\",\"user\":\"" + user + "\",\"time\":" + new Date().getTime() + "}</span>";
+        document.querySelector("[aria-label=Discussion]").dispatchEvent(new Event("focus"));
+        var tries = 20;
+        var timer = setInterval(function () {
+            try {
+                if (document.querySelector("[aria-label=Discussion] .skotz-vote b") == null) {
+                    const selection = window.getSelection();
+                    const range = document.createRange();
+                    range.selectNodeContents(document.querySelector("[aria-label=Discussion] .skotz-vote"));
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                    document.querySelector(".discussion-control [aria-label=Bold]").dispatchEvent(new MouseEvent("click", { bubbles: true }));
+                    if (tries-- <= 0) {
+                        clearInterval(timer);
+                    }
+                } else {
+                    clearInterval(timer);
+                }
+            } catch (ex) {
+                console.log(ex);
             }
-        } else {
-            clearInterval(timer);
-        }
-    }, 10);
+        }, 10);
+    } catch (ex) {
+        console.log(ex);
+    }
 }
 
 function skotzTallyVotes() {
@@ -76,14 +100,16 @@ function skotzTallyVotes() {
                     num = +scores[score.toString()];
                     width = num * scale;
                 }
+                var cssScore = score != "?" ? score : "x";
+                var palette = score != "?" ? "--communication-background" : "--palette-error";
                 var html = "";
                 html += "<style>";
-                html += ".skotz-" + score + " {width:" + width + "px;height:" + scale + "px;background:rgba(0,103,181,1);display:flex;border-left:1px solid #000;}";
+                html += ".skotz-" + cssScore + " {width:" + width + "px;height:" + scale + "px;background:rgba(0,103,181,1);background:var(" + palette + ",rgb(0, 120, 212));display:flex;border-left:1px solid #000;}";
                 html += ".skotz-line {transition: opacity 200ms; cursor: pointer;}";
                 html += ".skotz-line:hover {opacity:1 !important}";
                 html += "</style>";
-                html += "<div id=\"skotz-line-" + score + "\" class=\"skotz-line\" style=\"display:flex;margin-left:5px;" + (num == 0 ? "opacity:0.25" : "") + "\">";
-                html += "<div class=\"skotz-" + score + "\"></div>";
+                html += "<div id=\"skotz-line-" + cssScore + "\" class=\"skotz-line\" style=\"display:flex;margin-left:5px;" + (num == 0 ? "opacity:0.25" : "") + "\">";
+                html += "<div class=\"skotz-" + cssScore + "\"></div>";
                 html += "<div style=\"margin-left:5px;display:flex\">" + score + "</div></div>";
                 html += "</div>";
                 div.innerHTML += html;
@@ -98,6 +124,7 @@ function skotzTallyVotes() {
             skotzStyle(div, 20);
             skotzStyle(div, 40);
             skotzStyle(div, 100);
+            skotzStyle(div, "?");
             div.classList.add("skotz-graph");
             div.setAttribute("data-last", unique);
             var parent = document.querySelector("[aria-label=Effort]");
@@ -115,9 +142,10 @@ function skotzTallyVotes() {
             document.getElementById("skotz-line-20").addEventListener("click", function (e) { skotzCastVote(20); skotzTallyVotes(); }, false);
             document.getElementById("skotz-line-40").addEventListener("click", function (e) { skotzCastVote(40); skotzTallyVotes(); }, false);
             document.getElementById("skotz-line-100").addEventListener("click", function (e) { skotzCastVote(100); skotzTallyVotes(); }, false);
+            document.getElementById("skotz-line-x").addEventListener("click", function (e) { skotzCastVote("?"); skotzTallyVotes(); }, false);
         }
     } catch (ex) {
-        console.warn(ex);
+        console.log(ex);
     }
 }
 
