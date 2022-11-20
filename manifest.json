@@ -1,0 +1,17 @@
+{
+    "manifest_version": 3,
+    "name": "Azure DevOps Planning Poker",
+    "author": "Scott Clayton",
+    "version": "1.0",
+    "description": "Easily vote on the effort for a product backlog item in DevOps.",
+    "content_scripts": [
+        {
+            "js": [
+                "scripts/content.js"
+            ],
+            "matches": [
+                "https://dev.azure.com/*"
+            ]
+        }
+    ]
+}
