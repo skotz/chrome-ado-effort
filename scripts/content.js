@@ -3,7 +3,7 @@ Scott Clayton 2022
 */
 
 var skotzDiscussionSelector = "[aria-label=Discussion]";
-var skotzEffortSelector = "[aria-label=Effort]";
+var skotzEffortSelector = ".grid-group [aria-label=Effort]";
 var skotzUsernameSelector = "#mectrl_currentAccount_secondary";
 var skotzEffortOptions = [1, 2, 3, 5, 8, 13, 20, 40, 100, "?"];
 
@@ -100,6 +100,14 @@ function skotzTallyVotes() {
             unique += "|" + x.vote + "|" + x.user + "|" + x.time;
         });
 
+        // Add in the actual effort
+        var finalEffort = document.querySelector(skotzEffortSelector).value;
+        if (scores[finalEffort] == null) {
+            scores[finalEffort] = 0;
+        }
+        scores[finalEffort]++;
+        unique += "|" + finalEffort + "FINAL|";
+
         // Redraw when the state has changed
         var prev = document.querySelector(".skotz-graph");
         if (prev == null || prev.getAttribute("data-last") != unique) {
@@ -109,7 +117,7 @@ function skotzTallyVotes() {
 
             // Draw a single line of the graph
             function skotzStyle(div, score) {
-                var scale = 16;
+                var scale = 20;
                 var width = 0;
                 var num = 0;
                 if (scores[score.toString()] != null) {
@@ -120,13 +128,14 @@ function skotzTallyVotes() {
                 var palette = score != "?" ? "--communication-background" : "--palette-error";
                 var html = "";
                 html += "<style>";
+                html += ".skotz-graph {margin-bottom: 10px;}";
                 html += ".skotz-" + cssScore + " {width:" + width + "px;height:" + scale + "px;background:rgba(0,103,181,1);background:var(" + palette + ",rgb(0, 120, 212));display:flex;border-left:1px solid #000;}";
                 html += ".skotz-line {transition: opacity 200ms; cursor: pointer;}";
                 html += ".skotz-line:hover {opacity:1 !important; background: linear-gradient(90deg, rgba(244,244,244,1) 0%, rgba(244,244,244,0) 100%);}";
                 html += "</style>";
-                html += "<div id=\"skotz-line-" + cssScore + "\" class=\"skotz-line\" style=\"display:flex;margin-left:5px;" + (num == 0 ? "opacity:0.25" : "") + "\">";
+                html += "<div id=\"skotz-line-" + cssScore + "\" class=\"skotz-line\" style=\"display:flex;margin-left:5px;" + (num == 0 || (finalEffort.length && score != finalEffort) ? "opacity:0.25" : "") + "\" title=\"" + num + " vote" + (num != 1 ? "s" : "") + "\">";
                 html += "<div class=\"skotz-" + cssScore + "\"></div>";
-                html += "<div style=\"margin-left:5px;display:flex\">" + score + "</div></div>";
+                html += "<div style=\"margin-left:5px;display:flex;height:" + scale + "px;line-height:" + scale + "px;\">" + score + "</div></div>";
                 html += "</div>";
                 div.innerHTML += html;
             }
