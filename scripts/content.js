@@ -101,7 +101,11 @@ function skotzTallyVotes() {
         });
 
         // Add in the actual effort
-        var finalEffort = document.querySelector(skotzEffortSelector).value;
+        var effortEl = document.querySelector(skotzEffortSelector);
+        if (effortEl == null) {
+            return;
+        }
+        var finalEffort = effortEl.value;
         if (scores[finalEffort] == null) {
             scores[finalEffort] = 0;
         }
@@ -145,7 +149,7 @@ function skotzTallyVotes() {
             skotzEffortOptions.forEach(z => skotzStyle(div, z));
             div.classList.add("skotz-graph");
             div.setAttribute("data-last", unique);
-            var parent = document.querySelector(skotzEffortSelector);
+            var parent = effortEl;
             while (parent != null && !parent.classList.contains("control")) {
                 // Find the nearest "control" parent
                 parent = parent.parentElement;
